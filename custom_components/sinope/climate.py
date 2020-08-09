@@ -18,14 +18,14 @@ from homeassistant.components.climate import (ClimateEntity)
 from homeassistant.components.climate.const import (HVAC_MODE_HEAT, 
     HVAC_MODE_OFF, HVAC_MODE_AUTO, SUPPORT_TARGET_TEMPERATURE, 
     SUPPORT_PRESET_MODE, PRESET_AWAY, PRESET_NONE, CURRENT_HVAC_HEAT, 
-    CURRENT_HVAC_IDLE, CURRENT_HVAC_OFF)
+    CURRENT_HVAC_IDLE, CURRENT_HVAC_OFF, SUPPORT_OUTSIDE_TEMPERATURE)
 from homeassistant.const import (TEMP_CELSIUS, TEMP_FAHRENHEIT, ATTR_TEMPERATURE)
 from datetime import timedelta
 from homeassistant.helpers.event import track_time_interval
 
 _LOGGER = logging.getLogger(__name__)
 
-SUPPORT_FLAGS = (SUPPORT_TARGET_TEMPERATURE | SUPPORT_PRESET_MODE)
+SUPPORT_FLAGS = (SUPPORT_TARGET_TEMPERATURE | SUPPORT_PRESET_MODE | SUPPORT_OUTSIDE_TEMPERATURE)
 
 DEFAULT_NAME = "sinope climate"
 
@@ -233,6 +233,10 @@ class SinopeThermostat(ClimateEntity):
             return
         self._client.set_temperature(self._id, temperature)
         self._target_temp = temperature
+
+    def set_outside_temperature(self):
+        """Set new outside temperature."""
+        self._client.set_hourly_report(self._id)
 
     def set_hvac_mode(self, hvac_mode):
         """Set new hvac mode."""
