@@ -585,7 +585,7 @@ def data_write_request(*arg): # data = size+data to send (command,unit_id,data_a
 
 class SinopeClient(object):
 
-    def __init__(self, api_key, api_id, server, my_city, tz, latitude, longitude, dk_key, timeout=REQUESTS_TIMEOUT):
+    def __init__(self, api_key, api_id, server, my_city, tz, latitude, longitude, dk_key, my_weather, timeout=REQUESTS_TIMEOUT):
         """Initialize the client object."""
         self._api_key = api_key
         self._api_id = api_id
