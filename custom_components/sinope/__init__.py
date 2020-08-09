@@ -595,6 +595,7 @@ class SinopeClient(object):
         self._latitude = latitude
         self._longitude = longitude
         self._dk_key = dk_key
+        self._my_weather = my_weather
         self.device_data = {}
         self.device_info = {}
 
@@ -712,11 +713,8 @@ class SinopeClient(object):
         try:
             if device_id == "all":
                 device_id = "FFFFFFFF"
-                result = get_result(bytearray(send_request(self, data_report_request(data_report_command,device_id,data_time,set_time(self._tz)))).hex())
-                response = get_result(bytearray(send_request(self, data_report_request(data_report_command,device_id,data_away,set_away(away)))).hex())
-            else:
-                result = get_result(bytearray(send_request(self, data_report_request(data_report_command,device_id,data_time,set_time(self._tz)))).hex())
-                response = get_result(bytearray(send_request(self, data_write_request(data_write_command,device_id,data_away,set_away(away)))).hex())
+            result = get_result(bytearray(send_request(self, data_report_request(data_report_command,device_id,data_time,set_time(self._tz)))).hex())
+            response = get_result(bytearray(send_request(self, data_write_request(data_write_command,device_id,data_away,set_away(away)))).hex())
         except OSError:
             raise PySinopeError("Cannot set device away")
         return response 
@@ -764,10 +762,12 @@ class SinopeClient(object):
             raise PySinopeError("Cannot send daily report to each devices")
         return result
       
-    def set_hourly_report(self):
+    def set_hourly_report(self, device_id):
         """we need to send temperature once per hour if we want it to be displayed on second thermostat display line"""
         try:
-            result = get_result(bytearray(send_request(self, data_report_request(data_report_command,all_unit,data_outdoor_temperature,set_temperature(get_outside_temperature(self._dk_key, self._latitude, self._longitude, self._my_weather))))).hex())
+            if device_id == "all":
+                device_id = "FFFFFFFF"
+            result = get_result(bytearray(send_request(self, data_report_request(data_report_command,device_id,data_outdoor_temperature,set_temperature(get_outside_temperature(self._dk_key, self._latitude, self._longitude, self._my_weather))))).hex())
         except OSError:
             raise PySinopeError("Cannot send temperature report to each devices")
         return result
