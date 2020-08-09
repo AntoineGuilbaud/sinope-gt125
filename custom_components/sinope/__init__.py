@@ -22,7 +22,7 @@ from homeassistant.util import Throttle
 
 #REQUIREMENTS = ['PY_Sinope==0.1.7']
 REQUIREMENTS = ['crc8==0.0.5']
-VERSION = '1.1.0'
+VERSION = '1.1.1'
 
 DOMAIN = 'sinope'
 DATA_DOMAIN = 'data_' + DOMAIN
@@ -709,7 +709,7 @@ class SinopeClient(object):
         return response
       
     def set_away_mode(self, device_id, away):
-        """Set device away mode."""
+        """Set device away mode. We need to send time before setting away mode."""
         try:
             if device_id == "all":
                 device_id = "FFFFFFFF"
