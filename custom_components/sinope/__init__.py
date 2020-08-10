@@ -54,15 +54,15 @@ def setup(hass, hass_config):
     hass.data[DATA_DOMAIN] = data
 
     global CONFDIR
-    
+
     CONFDIR = "/config/.storage/"
- 
+
     _LOGGER.debug("Setting config location to: %s", CONFDIR)
 
     global SCAN_INTERVAL 
     SCAN_INTERVAL = hass_config[DOMAIN].get(CONF_SCAN_INTERVAL)
     _LOGGER.debug("Setting scan interval to: %s", SCAN_INTERVAL)
-    
+
     discovery.load_platform(hass, 'climate', DOMAIN, {}, hass_config)
     discovery.load_platform(hass, 'light', DOMAIN, {}, hass_config)
     discovery.load_platform(hass, 'switch', DOMAIN, {}, hass_config)
@@ -206,7 +206,7 @@ def set_time(zone):
     h = bytearray(struct.pack('<i', int(now.strftime("%H"))+get_dst(zone))[:1]).hex() #hours converted to bytes
     time = '03'+s+m+h #xxssmmhh  24hr, 16:09:00 pm, xx = length of data time = 03
     return time
-  
+
 def set_sun_time(city, zone, period): # period = sunrise or sunset
     a = Astral()
     city = a[city]
@@ -220,7 +220,7 @@ def set_sun_time(city, zone, period): # period = sunrise or sunset
     h = bytearray(struct.pack('<i', int(now.strftime("%H"))+get_dst(zone))[:1]).hex() #hours converted to bytes
     time = '03'+s+m+h #xxssmmhh  24hr, 16:09:00 pm, xx = length of data time = 03
     return time
-  
+
 def get_heat_level(data):
     sequence = data[12:20]
     deviceID = data[26:34]
@@ -231,11 +231,11 @@ def get_heat_level(data):
     else:  
         tc2 = data[46:48]
         return int(float.fromhex(tc2))
-  
+
 def set_temperature(temp_celcius):
     temp = int(temp_celcius*100)
     return "02"+bytearray(struct.pack('<i', temp)[:2]).hex()
-  
+
 def get_temperature(data):
     sequence = data[12:20]
     deviceID = data[26:34]
@@ -267,7 +267,7 @@ def get_temperature(data):
             return 0
         else:  
             return round(float.fromhex(latemp)*0.01, 2)
-  
+
 def to_celcius(temp,unit): #unit = K for kelvin, C for celcius, F for farenheight
     if unit == "C":
         return round((temp-32)*0.5555, 2)
@@ -276,10 +276,10 @@ def to_celcius(temp,unit): #unit = K for kelvin, C for celcius, F for farenheigh
 
 def from_celcius(temp):
     return round((temp+1.8)+32, 2)
-    
+
 def set_away(away): #0=home,2=away
     return "01"+bytearray(struct.pack('<i', away)[:1]).hex()
-  
+
 def get_away(data):
     sequence = data[12:20]
     deviceID = data[26:34]
@@ -293,7 +293,7 @@ def get_away(data):
 
 def put_mode(mode): #0=off,1=freeze protect,2=manual,3=auto,5=away
     return "01"+bytearray(struct.pack('<i', mode)[:1]).hex()
- 
+
 def get_mode(data):
     sequence = data[12:20]
     deviceID = data[26:34]
@@ -304,7 +304,7 @@ def get_mode(data):
     else:  
         tc2 = data[46:48]
         return int(float.fromhex(tc2))
-  
+
 def set_intensity(num):
     return "01"+bytearray(struct.pack('<i', num)[:1]).hex()
 
@@ -328,7 +328,7 @@ def get_data_push(data): #will be used to send data pushed by GT125 when light i
 
 def set_lock(lock):
     return "01"+bytearray(struct.pack('<i', lock)[:1]).hex()
-  
+
 def get_lock(data):
     sequence = data[12:20]
     deviceID = data[26:34]
@@ -352,7 +352,7 @@ def get_power_load(data): # get power in watt use by the device
         tc4 = data[48:50]
         lepower = tc4+tc2
         return int(float.fromhex(lepower))
-  
+
 def set_light_event_on(num): #102 = light, 112 = dimmer
     b0 = "10"
     b1 = "00000000"
@@ -412,10 +412,10 @@ def get_switch_event_state(data): #received event from devices,
     deviceID = data[26:34]
     tc2 = data[46:50]
     return  tc2 #int(float.fromhex(tc2))
-  
+
 def set_timer_length(num): # 0=desabled, 1 to 255 lenght on
     return "01"+bytearray(struct.pack('<i', num)[:1]).hex()
-  
+
 def get_timer_length(data): # 0=desabled, 1 to 255 lenght on
     sequence = data[12:20]
     deviceID = data[26:34]
@@ -438,7 +438,7 @@ def get_result(data): # check if data write was successfull, return True or Fals
     else:
         _LOGGER.debug("Status code: %s (Wrong answer ? %s) %s", tc2, deviceID, data)
     return False
-  
+
 def error_info(bug,device):
     if bug == b'FF' or bug == b'ff':
         _LOGGER.debug("in request for %s : Request failed (%s).", device, bug)
@@ -456,7 +456,7 @@ def error_info(bug,device):
         _LOGGER.debug("in request for %s : Error message reserved (%s), info not available.", device, bug)
     else:
         _LOGGER.debug("in request for %s : Unknown error (%s).", device, bug)
-        
+
 def send_request(self, *arg): #data
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (self._server, PORT)
@@ -506,26 +506,26 @@ def send_request(self, *arg): #data
             _LOGGER.debug("Sinope login fail, check your Api_Key and Api_ID")
     finally:
         sock.close()
-        
+
 def login_request(self):
     login_data = "550012001001"+invert(self._api_id)+self._api_key
     login_crc = bytes.fromhex(crc_count(bytes.fromhex(login_data)))
     return bytes.fromhex(login_data)+login_crc
-  
+
 def get_seq(seq): # could be improuved
     if seq == 0:
         seq = seq_num
     seq += 1  
     return str(seq)  
-  
+
 def count_data(data):
     size = int(len(data)/2)
     return bytearray(struct.pack('<i', size)[:1]).hex()
 
 def count_data_frame(data):
     size = int(len(data)/2)
-    return bytearray(struct.pack('<i', size)[:2]).hex() 
-  
+    return bytearray(struct.pack('<i', size)[:2]).hex()
+
 def data_read_request(*arg): # command,unit_id,data_app
     head = "5500"
 #    data_command = arg[0]
@@ -537,7 +537,7 @@ def data_read_request(*arg): # command,unit_id,data_app
     data_frame = head+size+arg[0]+data_seq+data_type+data_res+arg[1]+app_data_size+arg[2]
     read_crc = bytes.fromhex(crc_count(bytes.fromhex(data_frame)))
     return bytes.fromhex(data_frame)+read_crc
-  
+
 def data_report_request(*arg): # data = size+time or size+temperature (command,unit_id,data_app,data)
     head = "5500"
 #    data_command = arg[0]
@@ -549,7 +549,7 @@ def data_report_request(*arg): # data = size+time or size+temperature (command,u
     data_frame = head+size+arg[0]+data_seq+data_type+data_res+arg[1]+app_data_size+arg[2]+arg[3]
     read_crc = bytes.fromhex(crc_count(bytes.fromhex(data_frame)))
     return bytes.fromhex(data_frame)+read_crc
- 
+
 def data_write_request(*arg): # data = size+data to send (command,unit_id,data_app,data)
     head = "5500"
 #    data_command = arg[0]
@@ -574,8 +574,8 @@ class SinopeClient(object):
         self.device_data = {}
         self.device_info = {}
 
-# retreive data from devices        
-        
+# retreive data from devices
+
     def get_climate_device_data(self, device_id):
         """Get device data."""
         # send requests
@@ -617,7 +617,7 @@ class SinopeClient(object):
         # Prepare data
         self._device_data = {'intensity': intensity, 'mode': mode, 'powerWatt': powerwatt, 'alarm': 0, 'rssi': 0}
         return self._device_data    
-    
+
     def get_climate_device_info(self, device_id):
         """Get information for this device."""
         # send requests
@@ -670,7 +670,7 @@ class SinopeClient(object):
         except OSError:
             raise PySinopeError("Cannot send current time to device")
         return response
-    
+
     def set_mode(self, device_id, device_type, mode):
         """Set device operation mode."""
         # prepare data
@@ -682,7 +682,7 @@ class SinopeClient(object):
         except OSError:
             raise PySinopeError("Cannot set device operation mode")
         return response
-      
+
     def set_away_mode(self, device_id, away):
         """Set device away mode. We need to send time before setting new away mode."""
         try:
@@ -693,7 +693,7 @@ class SinopeClient(object):
         except OSError:
             raise PySinopeError("Cannot set device away")
         return response 
-      
+
     def set_temperature(self, device_id, temperature):
         """Set device temperature."""
         try:
@@ -709,7 +709,7 @@ class SinopeClient(object):
         except OSError:
             raise PySinopeError("Cannot set device timer length")
         return response 
-    
+
     def set_all_away(self, away):
         """Set all devices to away mode 0=home, 2=away"""
         try:
@@ -736,7 +736,7 @@ class SinopeClient(object):
         except OSError:
             raise PySinopeError("Cannot send daily report to each devices")
         return result
-      
+
     def set_hourly_report(self, device_id, outside_temperature):
         """we need to send temperature once per hour if we want it to be displayed on second thermostat display line"""
         """We also need to send command to switch from setpoint temperature to outside temperature on second thermostat display"""
