@@ -84,8 +84,8 @@ sinope:
   server: '<Ip adress of your GT125>'
   id: '<ID written on the back of your GT125>' non space
   api_key: '<Api_key received on first manual connection with the GT125>' #run device.py for that
-  dk_key: '<your Dark sky key>' or 'your Open weather map key'
-  my_weather: 'dark' for Dark sky api or 'owm' for Open weather map api
+  dk_key: '<your Dark sky key>' or 'your Open weather map key' <---- not needed anymore
+  my_weather: 'dark' for Dark sky api or 'owm' for Open weather map api <---- not needed anymore
   my_city: '<the nearest city>' #needed to get sunrise and sunset hours for your location.
   scan_interval: 120 #you can go down to 60 if you want depending on how many devices you have to update. Default set to 180
   ```
@@ -185,6 +185,24 @@ climate.sinope_climate_thermostat_name:
 ```yaml
 customize: !include customize.yaml
 ``` 
+## Sending outside temperature to each thermostat
+
+to do so you need to create an automation like this:
+```yaml
+  - id: hourly outside temp
+    alias: Send outside temperature to thermostats
+    initial_state: true
+    trigger:
+      platform: time_pattern
+      minutes: "/60"
+    action:
+      - service: climate.set_outside_temperature
+        data_template:
+          entity_id: climate.sinope_climate_kitchen
+          outside_temperature: "{{ state_attr('weather.openweathermap', 'temperature') }}"
+``` 
+You can replace openweathermap by your prefered weather provider component.
+
 ## Floorplan
 
 Under www/floorplan you will find what can be done to add Sinopé devices in your floorplan with the icons you need in svg format.
