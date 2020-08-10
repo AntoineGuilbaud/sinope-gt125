@@ -195,11 +195,16 @@ class SinopeThermostat(ClimateEntity):
     def current_temperature(self):
         """Return the current temperature."""
         return self._cur_temp
-    
+
     @property
     def target_temperature (self):
         """Return the temperature we try to reach."""
         return self._target_temp
+
+    @property
+    def outside_temperature (self):
+        """Return the outside temperature we try to set."""
+        return self._outside_temperature
 
     @property
     def preset_modes(self):
