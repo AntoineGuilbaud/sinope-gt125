@@ -686,8 +686,6 @@ class SinopeClient(object):
     def set_away_mode(self, device_id, away):
         """Set device away mode. We need to send time before setting new away mode."""
         try:
-            if device_id == "all":
-                device_id = "FFFFFFFF"
             result = get_result(bytearray(send_request(self, data_report_request(data_report_command,device_id,data_time,set_time(self._tz)))).hex())
             response = get_result(bytearray(send_request(self, data_write_request(data_write_command,device_id,data_away,set_away(away)))).hex())
         except OSError:
@@ -741,8 +739,6 @@ class SinopeClient(object):
         """we need to send temperature once per hour if we want it to be displayed on second thermostat display line"""
         """We also need to send command to switch from setpoint temperature to outside temperature on second thermostat display"""
         try:
-            if device_id == "all":
-                device_id = "FFFFFFFF"
             reply = get_result(bytearray(send_request(self, data_write_request(data_write_command,device_id,data_display2,put_mode(1)))).hex())
             result = get_result(bytearray(send_request(self, data_report_request(data_report_command,device_id,data_outdoor_temperature,set_temperature(outside_temperature)))).hex())
         except OSError:
