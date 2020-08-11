@@ -240,10 +240,16 @@ class SinopeThermostat(ClimateEntity):
         self._target_temp = temperature
 
     def set_outside_temperature(self, outside_temperature):
-        """Set new outside temperature."""
+        """Send command to set new outside temperature."""
         if outside_temperature is None:
             return
         self._client.set_hourly_report(self._id, outside_temperature)
+        self._outside_temperature = outside_temperature
+
+    async def async_set_outside_temperature(self, outside_temperature):
+        """Send command to set new outside temperature."""
+        await self._client.set_hourly_report(
+            self._id, outside_temperature)
         self._outside_temperature = outside_temperature
 
     def set_hvac_mode(self, hvac_mode):
